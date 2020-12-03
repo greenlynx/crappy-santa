@@ -11,7 +11,7 @@ const sampleEveryXPixels = 1
 const sampleEveryYPixels = 1
 const animationDuration = 1
 
-const pixels = require("get-pixels")(imageFile, function (err, pixels) {
+require("get-pixels")(imageFile, function (err, pixels) {
   if(err) {
     console.error("Bad image path")
     return
@@ -35,8 +35,8 @@ const pixels = require("get-pixels")(imageFile, function (err, pixels) {
       const yOut = y / sampleEveryYPixels
 
       const id = `x${xOut}y${yOut}`
-      const style = `#${id}{--x:${xOut};--y:${yOut}; animation-name: frames-${id};}`
-      const element = `<div id="${id}"></div>`
+      const style = `.${id}{--x:${xOut};--y:${yOut};--a:f${id};}`
+      const element = `<div class="${id}"/></div>`
       
       styles = styles + style
       elements = elements + element
@@ -64,15 +64,14 @@ const pixels = require("get-pixels")(imageFile, function (err, pixels) {
           a = 255
         }
 
-        const keyframe = `${percentage}% { background-color:rgba(${r},${g},${b},${a}) }`
-        if (!lastKeyframe) lastKeyframe = `100% { background-color:rgba(${r},${g},${b},${a}) }`
+        const keyframe = `${percentage}%{background:rgba(${r},${g},${b},${a})}`
+        if (!lastKeyframe) lastKeyframe = `100%{background:rgba(${r},${g},${b},${a})}`
 
         keyframes = keyframes + keyframe
       }
     
     keyframes = keyframes + lastKeyframe
-    allKeyframes = allKeyframes + `@keyframes frames-${id} { ${keyframes} }
-    `          
+    allKeyframes = allKeyframes + `@keyframes f${id} {${keyframes}}`
     }
   }
 
@@ -80,16 +79,28 @@ const pixels = require("get-pixels")(imageFile, function (err, pixels) {
 <body>
 <style>
   :root {
-  --width: ${sampleEveryXPixels * scaleX}px;
-  --height: ${sampleEveryYPixels * scaleY}px;
-}
-  div {
+    --width: ${sampleEveryXPixels * scaleX}px;
+    --height: ${sampleEveryYPixels * scaleY}px;
+  }
+  @keyframes fadein {
+    0% { opacity: 0; }
+    80% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  .santa {
+    opacity: 1;
+    animation-iteration-count: 1;
+    animation-name: fade-in;
+    animation-duration: 5s;
+  }
+  .santa div {
     display: block;
     position: absolute;
-    width: var(--width);
-    height: var(--height);
+    width: ${sampleEveryXPixels * scaleX}px;
+    height: ${sampleEveryXPixels * scaleX}px;
     left: calc(var(--width) * var(--x));
     top: calc(var(--height) * var(--y));
+    animation-name: var(--a);
     animation-iteration-count: infinite;
     animation-duration: ${animationDuration}s;
     animation-direction: alternate;
@@ -97,7 +108,9 @@ const pixels = require("get-pixels")(imageFile, function (err, pixels) {
   ${styles}
   ${allKeyframes}
 </style>
+<div class="santa">
 ${elements}
+</div>
 <body>
   <html>`
 
