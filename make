@@ -1,2 +1,2 @@
 #!/bin/sh
-node generate.js santa.gif > index.html
+node generate.js sleigh.gif > index.html

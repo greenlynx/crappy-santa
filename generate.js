@@ -7,27 +7,33 @@ if (!imageFile) {
   return
 }
 
-const randomSeed = 'xmas'
+const randomSeed = 'xmas2020'
 const scaleX = 1
 const scaleY = 1
-const sampleEveryXPixels = 1
-const sampleEveryYPixels = 1
+const sampleEveryXPixels = 3
+const sampleEveryYPixels = 3
 const animationDuration = 1
 
 const snowflakeCount = 50
 
-let snowflake = ''
+let snowflakes = ''
 let snowflakeStyles = ''
 
 var rng = seedrandom(randomSeed)
 
 for (let i = 0; i < snowflakeCount; i++) {
-  snowflakes += ''
-  snowflakeStyles += `.snow p:nth-child(${i+1}) {
-    font-size: ${rng() * 45}px;
+  const distance = rng()
+  snowflakes += '<p>❄️</p>'
+  snowflakeStyles += `.snow p:nth-child(${i + 1}) {
+    --distance: ${distance};
+    z-index: ${((1-distance) * 100 - 50).toFixed(0)};
+    font-size: ${(1-distance) * 45}px;
     left: ${rng() * 100}%;
-    animation-duration: ${rng() * 20}s;
-  }`
+    animation: snowfall ${distance * 20 + 4}s -${rng() * 10 + 2}s infinite linear,  spin ${rng() * 2500 + 2500}ms 0s infinite linear, float 5s ${rng() * 5}s infinite linear;
+    opacity: ${(1 - distance) * 0.5 + 0.5};
+    filter: blur(${distance * 2}px);
+  }
+  `
 }
 
 require("get-pixels")(imageFile, function (err, pixels) {
@@ -125,9 +131,17 @@ require("get-pixels")(imageFile, function (err, pixels) {
     --width: ${sampleEveryXPixels * scaleX}px;
     --height: ${sampleEveryYPixels * scaleY}px;
   }
-  body {
+  div {
+    display: block;
+    position: absolute;
+  }
+  #bg {
+    top: 0;
+    left: 0;
+    z-index: -100;
     width: 100%;
-    height: 100%
+    height: 100%;
+    background: linear-gradient(0deg, rgba(10,10,115,1) 0%, rgba(2,0,36,1) 100%);
   }
   @keyframes fadein {
     0% { opacity: 0; }
@@ -140,68 +154,72 @@ require("get-pixels")(imageFile, function (err, pixels) {
     animation-name: fade-in;
     animation-duration: 5s;
     z-index: 0;
+    animation: fly 30s infinite linear;
   }
   .santa div {
-    display: block;
-    position: absolute;
     width: ${sampleEveryXPixels * scaleX}px;
     height: ${sampleEveryXPixels * scaleX}px;
     left: calc(var(--width) * var(--x));
     top: calc(var(--height) * var(--y));
-    animation-name: var(--a);
-    animation-iteration-count: infinite;
-    animation-duration: ${animationDuration}s;
-    animation-direction: alternate;
-    animation-timing-function: linear;
+    animation: var(--a) ${animationDuration}s infinite steps(1, end);
   }
 
+  @keyframes fly {
+    from { left: -${width}px; top: 40%; }
+    to { left: 100%; top: 20%; }
+  }
+  @keyframes spin {
+    from { transform:rotate(0deg); }
+    to { transform:rotate(360deg); }
+  }
+  @keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+  }
   @keyframes snowfall {
-    0% { top: 0%; }
+    0% { top: -5%; }
     100% { top: 100%; }
   }
-  .snow {
-    // display: block;
-    // position: absolute;
+  @keyframes snowdrift {
+    0% { left: 100%; }
+    100% { left: -5%; }
+  }
+  @keyframes float {
+    from, to {
+      transform: translateX(calc((1 - var(--distance)) * -20px));
+    }
+    50% {
+      transform: translateX(calc((1 - var(--distance)) * 20px));
+    }
+  }  .snow {
     left: 0px;
     top: 0px;
-    width 100%;
+    width: 100%;
     height: 100%;
-    z-index: 1;
   }
   .snow p {
     display: block;
     position: absolute;
     margin: 0;
     padding: 0;
-    animation-name: snowfall;
     animation-iteration-count: infinite;
-    animation-duration: 8s;
     animation-timing-function: linear;
-  }
-  .snow p:nth-child(1) {
-    font-size: 32px;
-    left: 0%;
-    animation-duration: 5s;
-  }
-  .snow p:nth-child(2) {
-    font-size: 28px;
-    left: 30%;
-    animation-duration: 3s;
-  }
-  .snow p:nth-child(3) {
-    font-size: 18px;
-    left: 21%;
-    animation-duration: 12s;
   }
   ${pixelStyles}
   ${snowflakeStyles}
   ${allKeyframes}
 </style>
+<div id="bg">
 <div class="santa">
 ${elements}
 </div>
 <div class="snow">
-<p>❄️</p><p>❄️</p><p>❄️</p>
+${snowflakes}
+</div>
 </div>
 <body>
   <html>`
