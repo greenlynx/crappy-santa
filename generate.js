@@ -169,7 +169,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
     border-left: 45px solid transparent;
     border-right: 45px solid transparent;
     
-    border-bottom: 45px solid black;
+    border-bottom: 45px solid red;
   }
 
   @keyframes fly {
