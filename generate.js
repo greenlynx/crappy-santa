@@ -163,6 +163,14 @@ require("get-pixels")(imageFile, function (err, pixels) {
     top: calc(var(--height) * var(--y));
     animation: var(--a) ${animationDuration}s infinite steps(1, end);
   }
+  .roof {
+    width: 0; 
+    height: 0; 
+    border-left: 45px solid transparent;
+    border-right: 45px solid transparent;
+    
+    border-bottom: 45px solid black;
+  }
 
   @keyframes fly {
     from { left: -${width}px; top: 40%; }
@@ -220,6 +228,7 @@ ${elements}
 <div class="snow">
 ${snowflakes}
 </div>
+<div class="roof"></div>
 </div>
 <body>
   <html>`
