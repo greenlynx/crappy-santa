@@ -230,8 +230,8 @@ ${snowflakes}
 </div>
 <div class="roof"></div>
 </div>
-<body>
-  <html>`
+</body>
+  </html>`
 
   console.log(template)
 })
