@@ -16,18 +16,17 @@ const animationDuration = 1
 
 const snowflakeCount = 50
 
-let snowflakes = ''
+let snowflake = ''
 let snowflakeStyles = ''
 
 var rng = seedrandom(randomSeed)
 
 for (let i = 0; i < snowflakeCount; i++) {
-  snowflakes += '<p>❄️</p>'
+  snowflakes += ''
   snowflakeStyles += `.snow p:nth-child(${i+1}) {
     font-size: ${rng() * 45}px;
     left: ${rng() * 100}%;
-    animation-duration: ${rng() * 20 + 4}s;
-    animation-delay: -${rng() * 10 + 2}s
+    animation-duration: ${rng() * 20}s;
   }`
 }
 
@@ -128,7 +127,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
   }
   body {
     width: 100%;
-    height: 100%;
+    height: 100%
   }
   @keyframes fadein {
     0% { opacity: 0; }
@@ -202,7 +201,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
 ${elements}
 </div>
 <div class="snow">
-${snowflakes}
+<p>❄️</p><p>❄️</p><p>❄️</p>
 </div>
 <body>
   <html>`
