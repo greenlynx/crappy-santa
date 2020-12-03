@@ -27,6 +27,9 @@ require("get-pixels")(imageFile, function (err, pixels) {
 
   let allKeyframes = ''
 
+  const animationCache = new Map()
+  let nextAnimationIndex = 0
+
   const frameCount = isGif ? pixels.shape[3] : 1
 
   for (let x = 0; x < width; x += sampleEveryXPixels) {
@@ -35,15 +38,13 @@ require("get-pixels")(imageFile, function (err, pixels) {
       const yOut = y / sampleEveryYPixels
 
       const id = `x${xOut}y${yOut}`
-      const style = `.${id}{--x:${xOut};--y:${yOut};--a:f${id};}`
       const element = `<div class="${id}"/></div>`
-      
-      styles = styles + style
-      elements = elements + element
 
       let lastKeyframe = ''
-      let keyframes = ''
+      let bareKeyframesArray = []
+      let keyframesArray = []
 
+      let emptyFrameCount = 0
       for (let frame = 0; frame < frameCount; ++frame) {
         const percentage = (frame / frameCount) * 100
     
@@ -64,16 +65,38 @@ require("get-pixels")(imageFile, function (err, pixels) {
           a = 255
         }
 
-        const keyframe = `${percentage}%{background:rgba(${r},${g},${b},${a})}`
+        if (a === 0) emptyFrameCount++
+
+        const bareKeyframe = `{background:rgba(${r},${g},${b},${a})}`
+        const keyframe = `${percentage}%${bareKeyframe}`
         if (!lastKeyframe) lastKeyframe = `100%{background:rgba(${r},${g},${b},${a})}`
 
-        keyframes = keyframes + keyframe
+        bareKeyframesArray.push(bareKeyframe)
+        //if (frame === 0 || bareKeyframesArray[frame - 1] !== bareKeyframe) {
+          keyframesArray.push(keyframe)
+        //}
       }
     
-    keyframes = keyframes + lastKeyframe
-    allKeyframes = allKeyframes + `@keyframes f${id} {${keyframes}}`
+      if (emptyFrameCount !== frameCount) {
+        keyframesArray.push(lastKeyframe)
+
+        const keyframes = keyframesArray.join('')
+
+        let animationName = ''
+        if (animationCache.has(keyframes)) {
+          animationName = animationCache.get(keyframes)
+        } else {
+          animationName = `f${nextAnimationIndex++}`
+          animationCache.set(keyframes, animationName)
+          allKeyframes = allKeyframes + `@keyframes ${animationName} {${keyframes}}`
+        }
+  
+        const style = `.${id}{--x:${xOut};--y:${yOut};--a:${animationName};}`
+        styles = styles + style
+        elements = elements + element
+      }
     }
-  }
+}
 
   const template = `<html>
 <body>
@@ -104,6 +127,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
     animation-iteration-count: infinite;
     animation-duration: ${animationDuration}s;
     animation-direction: alternate;
+    animation-timing-function: linear;
   }
   ${styles}
   ${allKeyframes}
