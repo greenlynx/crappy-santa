@@ -27,8 +27,7 @@ for (let i = 0; i < snowflakeCount; i++) {
     font-size: ${rng() * 45}px;
     left: ${rng() * 100}%;
     animation-duration: ${rng() * 20 + 4}s;
-    animation-delay: -${rng() * 10 + 2}s;
-    opacity: ${rng() * 0.5 + 0.5};
+    animation-delay: -${rng() * 10 + 2}s
   }`
 }
 
@@ -123,10 +122,16 @@ require("get-pixels")(imageFile, function (err, pixels) {
 <head><meta charset=“UTF-8”></head>
 <body>
 <style>
-  /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
+
+  :root {
+    --width: ${sampleEveryXPixels * scaleX}px;
+    --height: ${sampleEveryYPixels * scaleY}px;
+  }
   body {
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
 
   }
   @keyframes fadein {
@@ -146,8 +151,8 @@ require("get-pixels")(imageFile, function (err, pixels) {
     position: absolute;
     width: ${sampleEveryXPixels * scaleX}px;
     height: ${sampleEveryXPixels * scaleX}px;
-    left: calc(${sampleEveryXPixels * scaleX} * var(--x));
-    top: calc(${sampleEveryYPixels * scaleY} * var(--y));
+    left: calc(var(--width) * var(--x));
+    top: calc(var(--height) * var(--y));
     animation-name: var(--a);
     animation-iteration-count: infinite;
     animation-duration: ${animationDuration}s;
@@ -160,9 +165,11 @@ require("get-pixels")(imageFile, function (err, pixels) {
     100% { top: 100%; }
   }
   .snow {
+    // display: block;
+    // position: absolute;
     left: 0px;
     top: 0px;
-    width: 100%;
+    width 100%;
     height: 100%;
     z-index: 1;
   }
@@ -175,6 +182,21 @@ require("get-pixels")(imageFile, function (err, pixels) {
     animation-iteration-count: infinite;
     animation-duration: 8s;
     animation-timing-function: linear;
+  }
+  .snow p:nth-child(1) {
+    font-size: 32px;
+    left: 0%;
+    animation-duration: 5s;
+  }
+  .snow p:nth-child(2) {
+    font-size: 28px;
+    left: 30%;
+    animation-duration: 3s;
+  }
+  .snow p:nth-child(3) {
+    font-size: 18px;
+    left: 21%;
+    animation-duration: 12s;
   }
   ${pixelStyles}
   ${snowflakeStyles}
