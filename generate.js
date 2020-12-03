@@ -122,7 +122,6 @@ require("get-pixels")(imageFile, function (err, pixels) {
 <head><meta charset=“UTF-8”></head>
 <body>
 <style>
-
   :root {
     --width: ${sampleEveryXPixels * scaleX}px;
     --height: ${sampleEveryYPixels * scaleY}px;
@@ -130,9 +129,6 @@ require("get-pixels")(imageFile, function (err, pixels) {
   body {
     width: 100%;
     height: 100%;
-    margin: 0;
-    padding: 0;
-
   }
   @keyframes fadein {
     0% { opacity: 0; }
