@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "get-pixels": "^3.3.2"
+    "get-pixels": "^3.3.2",
+    "seedrandom": "^3.0.5"
   }
 }

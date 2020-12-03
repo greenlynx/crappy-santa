@@ -1,3 +1,5 @@
+const seedrandom = require('seedrandom')
+
 const imageFile = process.argv[2]
 
 if (!imageFile) {
@@ -5,11 +7,30 @@ if (!imageFile) {
   return
 }
 
+const randomSeed = 'xmas'
 const scaleX = 1
 const scaleY = 1
 const sampleEveryXPixels = 1
 const sampleEveryYPixels = 1
 const animationDuration = 1
+
+const snowflakeCount = 50
+
+let snowflakes = ''
+let snowflakeStyles = ''
+
+var rng = seedrandom(randomSeed)
+
+for (let i = 0; i < snowflakeCount; i++) {
+  snowflakes += '<p>❄️</p>'
+  snowflakeStyles += `.snow p:nth-child(${i+1}) {
+    font-size: ${rng() * 45}px;
+    left: ${rng() * 100}%;
+    animation-duration: ${rng() * 20 + 4}s;
+    animation-delay: -${rng() * 10 + 2}s;
+    opacity: ${rng() * 0.5 + 0.5};
+  }`
+}
 
 require("get-pixels")(imageFile, function (err, pixels) {
   if(err) {
@@ -19,7 +40,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
 
   const isGif = pixels.shape.length === 4
 
-  let styles = ''
+  let pixelStyles = ''
   let elements = ''
 
   const width = pixels.shape[isGif ? 1 : 0]
@@ -92,18 +113,21 @@ require("get-pixels")(imageFile, function (err, pixels) {
         }
   
         const style = `.${id}{--x:${xOut};--y:${yOut};--a:${animationName};}`
-        styles = styles + style
+        pixelStyles = pixelStyles + style
         elements = elements + element
       }
     }
 }
 
   const template = `<html>
+<head><meta charset=“UTF-8”></head>
 <body>
 <style>
-  :root {
-    --width: ${sampleEveryXPixels * scaleX}px;
-    --height: ${sampleEveryYPixels * scaleY}px;
+  /*! minireset.css v0.0.6 | MIT License | github.com/jgthms/minireset.css */html,body,p,ol,ul,li,dl,dt,dd,blockquote,figure,fieldset,legend,textarea,pre,iframe,hr,h1,h2,h3,h4,h5,h6{margin:0;padding:0}h1,h2,h3,h4,h5,h6{font-size:100%;font-weight:normal}ul{list-style:none}button,input,select,textarea{margin:0}html{box-sizing:border-box}*,*::before,*::after{box-sizing:inherit}img,video{height:auto;max-width:100%}iframe{border:0}table{border-collapse:collapse;border-spacing:0}td,th{padding:0}td:not([align]),th:not([align]){text-align:left}
+  body {
+    width: 100%;
+    height: 100%;
+
   }
   @keyframes fadein {
     0% { opacity: 0; }
@@ -115,25 +139,52 @@ require("get-pixels")(imageFile, function (err, pixels) {
     animation-iteration-count: 1;
     animation-name: fade-in;
     animation-duration: 5s;
+    z-index: 0;
   }
   .santa div {
     display: block;
     position: absolute;
     width: ${sampleEveryXPixels * scaleX}px;
     height: ${sampleEveryXPixels * scaleX}px;
-    left: calc(var(--width) * var(--x));
-    top: calc(var(--height) * var(--y));
+    left: calc(${sampleEveryXPixels * scaleX} * var(--x));
+    top: calc(${sampleEveryYPixels * scaleY} * var(--y));
     animation-name: var(--a);
     animation-iteration-count: infinite;
     animation-duration: ${animationDuration}s;
     animation-direction: alternate;
     animation-timing-function: linear;
   }
-  ${styles}
+
+  @keyframes snowfall {
+    0% { top: 0%; }
+    100% { top: 100%; }
+  }
+  .snow {
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+  .snow p {
+    display: block;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    animation-name: snowfall;
+    animation-iteration-count: infinite;
+    animation-duration: 8s;
+    animation-timing-function: linear;
+  }
+  ${pixelStyles}
+  ${snowflakeStyles}
   ${allKeyframes}
 </style>
 <div class="santa">
 ${elements}
+</div>
+<div class="snow">
+${snowflakes}
 </div>
 <body>
   <html>`
