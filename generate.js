@@ -242,22 +242,6 @@ require("get-pixels")(imageFile, function (err, pixels) {
     filter: blur(4px);
     transform: rotate(-30deg);
   }
-
-  @keyframes bounce {
-    from, to { transform: translateY(25px) }
-    50% { transform: translateY(-25px) }
-  }
-  .text {
-    font-family: "comic sans", serif;
-    color: red;
-    font-size: 64px;
-    bottom: 15%;
-  }
-  .text div {
-    position: static;
-    animation: bounce 2s calc(var(--i) * -0.2s) infinite;
-    left: calc(var(--i) * 0.8em);
-  }
   ${lettersStyles}
   ${pixelStyles}
   ${snowflakeStyles}
@@ -269,9 +253,6 @@ ${elements}
 </div>
 <div class="snow">
 ${snowflakes}
-</div>
-<div class="text">
-${letters}
 </div>
 <div class="moon"></div>
 </body>
