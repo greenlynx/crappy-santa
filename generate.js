@@ -7,39 +7,31 @@ if (!imageFile) {
   return
 }
 
-const randomSeed = 'xmas2020'
+const randomSeed = 'xmas_2020'
 const scaleX = 1
 const scaleY = 1
-const sampleEveryXPixels = 2
-const sampleEveryYPixels = 2
+const sampleEveryXPixels = 3
+const sampleEveryYPixels = 3
 const animationDuration = 1
 
-const message = "MERRY CHRISTMAS CINCH!!!!!1!"
-const snowflakeCount = 50
+const snowflakeCount = 100
 
 let snowflakes = ''
 let snowflakeStyles = ''
 
-const lookup = {
-  0: 'A'
-}
-const encode = (val) => {
-
-}
-
 var rng = seedrandom(randomSeed)
+
+const optimise = (value, dp) => {
+  let out = value.toFixed(dp)
+  if (dp > 0 && out[dp + 1] === '0') out = out.substring(0, out.length - 1)
+  if (out[0] === '0') out = out.substring(1)
+  return out
+}
 
 for (let i = 0; i < snowflakeCount; i++) {
   const distance = rng()
-  snowflakes += '<p>❄️</p>'
-  snowflakeStyles += `.snow p:nth-child(${i + 1}) {--d: ${distance};--e: ${1 - distance};z-index: ${((1-distance) * 100 - 50).toFixed(0)};left: ${rng() * 100}%;animation: snowfall ${distance * 20 + 4}s -${rng() * 10 + 2}s infinite linear, spin ${rng() * 2500 + 2500}ms 0s infinite linear, float 5s ${rng() * 5}s infinite linear;}`
-}
-
-let letters = ''
-let lettersStyles = ''
-for (let i = 0; i < message.length; i++) {
-  letters = letters + `<div>${message[i]}</div>`
-  lettersStyles = lettersStyles + `.text div:nth-child(${i+1}){--i: ${i}}`
+  snowflakes += '<p>❄️'
+  snowflakeStyles += `.s p:nth-child(${i + 1}){--d:${optimise(distance,2)};z-index:${optimise((1 - distance) * 100 - 50, 0)};left:${optimise(rng() * 100, 0)}%;animation: snowfall ${optimise(distance * 20 + 4, 2)}s -${optimise(rng() * 10 + 2, 2)}s infinite linear,spin ${optimise(rng() * 2500 + 2500, 2)}ms 0s infinite linear,float 5s ${optimise(rng() * 5, 2)}s infinite linear}`
 }
 
 require("get-pixels")(imageFile, function (err, pixels) {
@@ -61,7 +53,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
   const animationCache = new Map()
   let nextAnimationIndex = 0
 
-  const frameCount = isGif ? pixels.shape[3] : 1
+  const frameCount = isGif ? 5 : 1
 
   let lastId = 0
   for (let x = 0; x < width; x += sampleEveryXPixels) {
@@ -69,7 +61,11 @@ require("get-pixels")(imageFile, function (err, pixels) {
       const xOut = x / sampleEveryXPixels
       const yOut = y / sampleEveryYPixels
 
-      const id = `_${(lastId++).toString(36)}`
+      let id = (lastId).toString(36)
+      while (id[0] === '0' || id[0] === '1' || id[0] === '2' || id[0] === '3' || id[0] === '4' || id[0] === '5' || id[0] === '6' || id[0] === '7' || id[0] === '8' || id[0] === '9') {
+        lastId++
+        id = (lastId).toString(36)
+      }
       const element = `<p id="${id}">`
 
       let lastKeyframe = ''
@@ -109,7 +105,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
           }
         }
 
-        const bareKeyframe = `{background:#${compress(pad(r.toString(16)), pad(g.toString(16)), pad(b.toString(16)), pad(a.toString(16)))}}`
+        const bareKeyframe = `{--b:#${compress(pad(r.toString(16)), pad(g.toString(16)), pad(b.toString(16)), pad(a.toString(16)))}}`
         const keyframe = `${percentage}%${bareKeyframe}`
         if (!lastKeyframe) lastKeyframe = `end${bareKeyframe}`
 
@@ -121,6 +117,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
     
       if (emptyFrameCount !== frameCount) {
         //keyframesArray.push(lastKeyframe)
+        lastId++
 
         const keyframes = keyframesArray.join('')
 
@@ -128,12 +125,20 @@ require("get-pixels")(imageFile, function (err, pixels) {
         if (animationCache.has(keyframes)) {
           animationName = animationCache.get(keyframes)
         } else {
-          animationName = `f${(nextAnimationIndex++).toString(16)}`
+          let aId = nextAnimationIndex.toString(36)
+          while (aId[0] === '0' || aId[0] === '1' || aId[0] === '2' || aId[0] === '3' || aId[0] === '4' || aId[0] === '5' || aId[0] === '6' || aId[0] === '7' || aId[0] === '8' || aId[0] === '9') {
+            nextAnimationIndex++
+            aId = nextAnimationIndex.toString(36)
+          }
+
+          animationName = aId
+          nextAnimationIndex++
+
           animationCache.set(keyframes, animationName)
-          allKeyframes = allKeyframes + `@keyframes ${animationName} {${keyframes}}`
+          allKeyframes = allKeyframes + `@keyframes ${animationName}{${keyframes}}`
         }
   
-        const style = `#${id}{--x:${xOut};--y:${yOut};--a:${animationName};}`
+        const style = `#${id}{--x:${xOut};--y:${yOut};--a:${animationName}}`
         pixelStyles = pixelStyles + style
         elements = elements + element
       }
@@ -142,10 +147,7 @@ require("get-pixels")(imageFile, function (err, pixels) {
 
   const template = `<html>
 <head><meta charset=“UTF-8”></head><body><style>
-:root {
---width: ${sampleEveryXPixels * scaleX}px;
---height: ${sampleEveryYPixels * scaleY}px;
-}
+html, body, bg {margin: 0; height: 100%; overflow: hidden}
 div,p {
 display: block;
 position: absolute;
@@ -161,21 +163,16 @@ width: 100%;
 height: 100%;
 background: linear-gradient(0deg, rgba(10,10,115,1) 0%, rgba(2,0,36,1) 100%);
 }
-@keyframes fadein {
-0% { opacity: 0; }
-80% { opacity: 0; }
-100% { opacity: 1; }
-}
 .santa {
-opacity: 1;
 animation: fly 30s infinite linear;
 }
 .santa p {
 width: ${sampleEveryXPixels * scaleX}px;
 height: ${sampleEveryXPixels * scaleX}px;
-left: calc(var(--width) * var(--x));
-top: calc(var(--height) * var(--y));
+left: calc(var(--x) * ${sampleEveryXPixels * scaleX}px);
+top: calc(var(--y) * ${sampleEveryYPixels * scaleY}px);
 animation: var(--a) ${animationDuration}s infinite steps(1, end);
+background: var(--b);
 }
 @keyframes fly {
 from { left: -${width * 1}px; top: 40%; }
@@ -197,24 +194,24 @@ transform: translateX(calc((1 - var(--d)) * -20px));
 transform: translateX(calc((1 - var(--d)) * 20px));
 }
 }
-.snow {
-left: 0px;
-top: 0px;
+.s {
+left: 0;
+top: 0;
 width: 100%;
 height: 100%;
 }
-.snow p {
+.s p {
 display: block;
 position: absolute;
 margin: 0;
 padding: 0;
 filter: blur(calc(var(--d) * 2px));
 opacity: calc((1 - var(--d)) * 0.5 + 0.5);
-font-size: calc((var(--e)) * 45px);
+font-size: calc((calc(1 - var(--d))) * 45px);
 }
 .moon {
 border-radius: 50%;
-box-shadow: 25px 10px 0px 0px #d4d27b;
+box-shadow: 25px 10px 0 0 #d4d27b;
 right: 5%;
 top: 5%;
 width: 115px;
@@ -228,7 +225,7 @@ transform: rotate(-30deg);
 <div class="santa">
 ${elements}
 </div>
-<div class="snow">
+<div class="s">
 ${snowflakes}
 </div>
 <div class="moon"></div></body></html>`
