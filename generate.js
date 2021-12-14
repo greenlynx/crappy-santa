@@ -14,7 +14,7 @@ const sampleEveryXPixels = 3
 const sampleEveryYPixels = 3
 const animationDuration = 1
 
-const snowflakeCount = 75
+const snowflakeCount = 100
 
 let snowflakes = ''
 let snowflakeStyles = ''
@@ -60,6 +60,13 @@ require("get-pixels")(imageFile, function (err, pixels) {
     for (let y = 0; y < height; y += sampleEveryYPixels) {
       const xOut = x / sampleEveryXPixels
       const yOut = y / sampleEveryYPixels
+
+      let id = (lastId).toString(36)
+      while (id[0] === '0' || id[0] === '1' || id[0] === '2' || id[0] === '3' || id[0] === '4' || id[0] === '5' || id[0] === '6' || id[0] === '7' || id[0] === '8' || id[0] === '9') {
+        lastId++
+        id = (lastId).toString(36)
+      }
+      const element = `<p id="${id}">`
 
       let lastKeyframe = ''
       let bareKeyframesArray = []
@@ -131,15 +138,15 @@ require("get-pixels")(imageFile, function (err, pixels) {
           allKeyframes = allKeyframes + `@keyframes ${animationName}{${keyframes}}`
         }
   
-        const element = `<p style="--x:${xOut};--y:${yOut};--a:${animationName}">`
-        //pixelStyles = pixelStyles + style
+        const style = `#${id}{--x:${xOut};--y:${yOut};--a:${animationName}}`
+        pixelStyles = pixelStyles + style
         elements = elements + element
       }
     }
 }
 
   const template = `<html>
-<head><meta charset="UTF-8"><title>The CPU Usage Nightmare Before Christmas</title></head><body><style>
+<head><meta charset=“UTF-8”></head><body><style>
 html, body, bg {margin: 0; height: 100%; overflow: hidden}
 div,p {
 display: block;
